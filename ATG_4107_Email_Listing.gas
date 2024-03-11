@@ -1,0 +1,312 @@
+Program.Sub.ScreenSU.Start
+Gui.F_Emails..create
+Gui.F_Emails..caption("Matching Emails")
+Gui.F_Emails..size(15360,9285)
+Gui.F_Emails..position(0,0)
+Gui.F_Emails..event(UnLoad,f_emails_unload)
+Gui.F_Emails..alwaysontop(False)
+Gui.F_Emails..fontname("Arial")
+Gui.F_Emails..fontsize(8)
+Gui.F_Emails..forecolor(0)
+Gui.F_Emails..fontstyle(,,,)
+Gui.F_Emails..BackColor(-2147483633)
+Gui.F_Emails..controlbox(True)
+Gui.F_Emails..maxbutton(True)
+Gui.F_Emails..minbutton(True)
+Gui.F_Emails..mousepointer(0)
+Gui.F_Emails..moveable(True)
+Gui.F_Emails..sizeable(False)
+Gui.F_Emails..ShowInTaskBar(True)
+Gui.F_Emails..titlebar(True)
+Gui.F_Emails..MinX(0)
+Gui.F_Emails..MinY(0)
+Gui.F_Emails.lbl1.create(label,"Recipients",True,1935,255,1,200,4500,True,0,"Arial",8,-2147483633,0)
+Gui.F_Emails.cmdAssociate.create(button)
+Gui.F_Emails.cmdAssociate.caption("Associate")
+Gui.F_Emails.cmdAssociate.visible(True)
+Gui.F_Emails.cmdAssociate.size(1290,375)
+Gui.F_Emails.cmdAssociate.zorder(0)
+Gui.F_Emails.cmdAssociate.position(200,7900)
+Gui.F_Emails.cmdAssociate.enabled(True)
+Gui.F_Emails.cmdAssociate.fontname("Arial")
+Gui.F_Emails.cmdAssociate.fontsize(8)
+Gui.F_Emails.cmdAssociate.event(Click,cmdassociate_click)
+Gui.F_Emails.lvwEmails.create(listview)
+Gui.F_Emails.lvwEmails.view(3)
+Gui.F_Emails.lvwEmails.addlistviewcolumn("ID",0,0)
+Gui.F_Emails.lvwEmails.addlistviewcolumn("Date",2000,0)
+Gui.F_Emails.lvwEmails.addlistviewcolumn("Subject",4500,0)
+Gui.F_Emails.lvwEmails.addlistviewcolumn("Sender",2500,0)
+Gui.F_Emails.lvwEmails.addlistviewcolumn("Recipients",5500,0)
+Gui.F_Emails.lvwEmails.visible(True)
+Gui.F_Emails.lvwEmails.size(14715,4290)
+Gui.F_Emails.lvwEmails.zorder(0)
+Gui.F_Emails.lvwEmails.position(200,200)
+Gui.F_Emails.lvwEmails.enabled(True)
+Gui.F_Emails.lvwEmails.fontname("Arial")
+Gui.F_Emails.lvwEmails.fontsize(8)
+Gui.F_Emails.lvwEmails.event(click,lvwemails_click)
+Gui.F_Emails.lvwEmails.event(itemclick,lvwemails_click)
+Gui.F_Emails.txtRcpt.create(textboxm)
+Gui.F_Emails.txtRcpt.text("")
+Gui.F_Emails.txtRcpt.visible(True)
+Gui.F_Emails.txtRcpt.size(7185,855)
+Gui.F_Emails.txtRcpt.zorder(0)
+Gui.F_Emails.txtRcpt.position(245,4700)
+Gui.F_Emails.txtRcpt.enabled(True)
+Gui.F_Emails.txtRcpt.alignment(0)
+Gui.F_Emails.txtRcpt.fontname("Arial")
+Gui.F_Emails.txtRcpt.fontsize(8)
+Gui.F_Emails.txtRcpt.BackColor(-2147483643)
+Gui.F_Emails.txtBody.create(textboxm)
+Gui.F_Emails.txtBody.text("")
+Gui.F_Emails.txtBody.visible(True)
+Gui.F_Emails.txtBody.size(14685,2010)
+Gui.F_Emails.txtBody.zorder(0)
+Gui.F_Emails.txtBody.position(200,5690)
+Gui.F_Emails.txtBody.enabled(True)
+Gui.F_Emails.txtBody.alignment(0)
+Gui.F_Emails.txtBody.fontname("Arial")
+Gui.F_Emails.txtBody.fontsize(8)
+Gui.F_Emails.txtBody.BackColor(-2147483643)
+Gui.F_Emails.lblCount.create(label,"",True,1650,255,1,13100,4500,True,1,"Arial",8,-2147483633,0)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+Variable.UDT.Email.Define("EmailID",String)
+Variable.UDT.Email.Define("Subject",String)
+Variable.UDT.Email.Define("Sender",String)
+Variable.UDT.Email.Define("Rcpt",String)
+Variable.UDT.Email.Define("Date",String)
+Variable.Global.sPath.Declare(String)
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+Variable.Local.sEmailList.Declare(String)
+V.Local.sFields.declare(String)
+V.Local.sRecipients.Declare(String)
+V.Local.sEmails.Declare(String)
+V.Local.sCustNo.Declare(String)
+V.Local.sCustType.Declare(String)
+V.Local.sSql.Declare(String)
+V.Local.sArr.Declare(String)
+V.Local.lVar.Declare(Long)
+V.Local.iEmail.Declare(Long)
+V.Local.iArr.Declare(Long)
+V.Local.iPos.Declare(Long)
+V.Local.bMatch.Declare(Boolean)
+V.uLocal.uMails.Declare(Email)
+V.Local.sMatch.Declare(String)
+V.Local.iMax.Declare(Long)
+V.Local.iRow.Declare(Long)
+V.Local.iTotal.Declare(Long)
+V.Local.iCounter.Declare(Long)
+V.Local.sLabel.Declare(String)
+
+'updated for CRM.NET Hook, TRT
+F.Intrinsic.Control.If(V.Caller.Hook,=,42900)
+	V.Passed.CRM-cmdGAB-0.Set("Email Listing")
+	F.Intrinsic.Control.End
+
+F.Intrinsic.Control.EndIf
+V.Local.sCustNo.Set(V.Passed.DATA-CRM-CompID)
+V.Local.sCustType.Set(V.Passed.DATA-CRM-CompTypeAlpha)
+F.Automation.MSOutlook.FolderPathPicker(V.Global.sPath)
+'open the database connection
+F.ODBC.connection!con.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+
+'get intercepted contacts' email addresses (email1 on Contact table, Intercept on Contact_Aux)
+V.Local.sSql.Set("select email1, intercept from contact left outer join crm_contact_aux on contact.alt_id=crm_contact_Aux.cid where intercept<>0 and contact.cust = '%CUST%' and contact.Type = '%TYPE%'")
+F.Intrinsic.String.Replace(V.Local.sSql,"%CUST%",V.Local.sCustNo,V.Local.sSql)
+F.Intrinsic.String.Replace(V.Local.sSql,"%TYPE%",V.Local.sCustType,V.Local.sSql)
+
+'put contacts email addresses in an array
+F.ODBC.Connection!con.OpenRecordsetRO("rstEmails",V.local.sSql)
+V.Local.sArr.Redim(-1,-1)
+F.Intrinsic.Control.DoUntil(V.ODBC.con!rstEmails.EOF,=,True)
+	F.Intrinsic.Math.Add(V.Local.sArr.UBound,1,V.Local.lvar)
+	F.Intrinsic.Control.If(V.Local.lVar,=,0)
+		V.Local.sArr.Redim(0,0)
+	F.Intrinsic.Control.Else
+		V.Local.sArr.RedimPreserve(0,V.Local.lVar)
+	F.Intrinsic.Control.EndIf
+	V.Local.sArr(v.Local.lvar).Set(V.ODBC.con!rstEmails.fieldvalUCRTrim!email1)
+	F.ODBC.con!rstEmails.MoveNext
+F.Intrinsic.Control.Loop
+'
+V.uLocal.uMails.Redim(-1,-1)
+
+Gui.F_Emails.lvwEmails.ClearItems
+F.Intrinsic.UI.InvokeWaitDialog("Retrieving emails...","Progress")
+F.Automation.MSOutlook.getemaillisting(V.Global.sPath,V.Local.sEmailList)
+F.Intrinsic.String.Split(V.Local.sEmailList,"*%*",V.Local.sEmails)
+V.Local.iTotal.Set(V.Local.sEmails.UBound)
+'loop start
+F.Intrinsic.Control.For(V.Local.iEmail,V.Local.sEmails.lbound,V.Local.sEmails.UBound,1)
+	'F.Intrinsic.Debug.Stop
+	F.Intrinsic.UI.ChangeWaitStatus("Retrieving emails...",V.Local.iemail,1,V.Local.iTotal)
+	V.Local.bMatch.Set(False)
+	F.Intrinsic.Control.For(V.Local.iArr,V.Local.sArr.LBound,V.Local.sArr.UBound,1)
+		F.Intrinsic.String.Instr(V.Local.sEmails(v.Local.iEmail),V.Local.sArr(v.Local.iArr).UCase,V.Local.iPos)
+		F.Intrinsic.Control.If(V.Local.iPos,<>,0)
+			V.Local.bMatch.Set(True)
+			F.Intrinsic.Control.ExitFor(V.Local.iArr)
+		F.Intrinsic.Control.EndIf
+	F.Intrinsic.Control.Next(V.Local.iArr)
+	'if bmatch is true save EntryID of email (if match found), into an UDT array, along with sender, date, subject, recip
+	F.Intrinsic.Control.If(V.Local.bMatch,=,True)
+		'
+		F.Intrinsic.Math.Add(V.uLocal.uMails.UBound,1,V.Local.lVar)
+		F.Intrinsic.Control.If(V.Local.lVar,=,0)
+			V.uLocal.uMails.Redim(0,0)
+		F.Intrinsic.Control.Else
+			V.uLocal.uMails.RedimPreserve(0,V.Local.lVar)
+		F.Intrinsic.Control.EndIf
+		F.Intrinsic.String.Split(V.Local.sEmails(v.Local.iEmail),"*!*",V.Local.sMatch)
+		V.uLocal.uMails(v.Local.lVar)!EmailID.Set(V.Local.sMatch(0))
+		V.uLocal.uMails(v.Local.lVar)!Subject.Set(V.Local.sMatch(1))
+		V.uLocal.uMails(v.Local.lVar)!Sender.Set(V.Local.sMatch(3))
+		V.uLocal.uMails(v.Local.lVar)!Rcpt.Set(V.Local.sMatch(4))
+		F.Intrinsic.String.Replace(V.uLocal.uMails(v.Local.lVar)!Rcpt,"&^&","; ",V.uLocal.uMails(v.Local.lVar)!rcpt)
+		V.uLocal.uMails(v.Local.lVar)!Date.Set(V.Local.sMatch(2))
+		
+		'F.Intrinsic.ui.Msgbox(V.Local.sEmails(v.Local.iEmail))
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.Next(V.Local.iEmail)
+
+F.Intrinsic.Control.If(V.uLocal.uMails.UBound,=,-1)
+	F.Intrinsic.UI.Msgbox("No emails match criteria.")
+	F.Intrinsic.Control.End
+
+F.Intrinsic.Control.endif
+
+F.Intrinsic.UI.CloseWaitDialog
+
+F.Intrinsic.Math.Add(V.uLocal.uMails.UBound,1,V.Local.iCounter)
+F.Intrinsic.String.Concat(V.Local.iCounter.string," emails returned",V.Local.sLabel)
+Gui.F_Emails.lblCount.Caption(V.Local.sLabel)
+
+'
+'present listview or grid of matched emails (from email UDT array), use EntryID as key
+'Gui.F_Emails.flexgEmail.Cols(5)
+'F.Intrinsic.Math.add(V.uLocal.uMails.UBound,2,V.Local.iMax)
+'Gui.F_Emails.flexgEmail.Rows(V.local.iMax)
+'Gui.F_Emails.flexgEmail.FixedRows(1)
+'Gui.F_Emails.flexgEmail.TextMatrix(0,0,"ID")
+'Gui.F_Emails.flexgEmail.ColWidth(0,0)
+'Gui.F_Emails.flexgEmail.TextMatrix(1,0,"Date")
+'Gui.F_Emails.flexgEmail.ColWidth(1,2000)
+'Gui.F_Emails.flexgEmail.TextMatrix(2,0,"Subject")
+'Gui.F_Emails.flexgEmail.ColWidth(2,5000)
+'Gui.F_Emails.flexgEmail.TextMatrix(3,0,"Sender")
+'Gui.F_Emails.flexgEmail.ColWidth(3,2000)
+'Gui.F_Emails.flexgEmail.TextMatrix(4,0,"Recipients")
+'Gui.F_Emails.flexgEmail.ColWidth(4,5500)
+'Gui.F_Emails.flexgEmail.BuildStyle(1,0,"fontstyle","bold",True)
+'Gui.F_Emails.flexgEmail.BuildStyle(1,1,"fontstyle","bold",True)
+'Gui.F_Emails.flexgEmail.BuildStyle(1,2,"fontstyle","bold",True)
+'Gui.F_Emails.flexgEmail.BuildStyle(1,3,"fontstyle","bold",True)
+'Gui.F_Emails.flexgEmail.BuildStyle(1,4,"fontstyle","bold",True)
+'Gui.F_Emails.flexgEmail.ApplyStyle(0,1)
+
+F.Intrinsic.Control.For(V.Local.iEmail,V.uLocal.uMails.LBound,V.uLocal.uMails.UBound,1)
+'	F.Intrinsic.Math.Add(V.Local.iEmail,1,V.Local.irow)
+'	Gui.F_Emails.flexgEmail.TextMatrix(0,V.Local.iRow,V.uLocal.uMails(v.Local.iEmail)!EmailID)
+'	Gui.F_Emails.flexgEmail.TextMatrix(1,V.Local.iRow,V.uLocal.uMails(v.Local.iEmail)!Date)
+'	Gui.F_Emails.flexgEmail.TextMatrix(2,V.Local.iRow,V.uLocal.uMails(v.Local.iEmail)!Subject)
+'	Gui.F_Emails.flexgEmail.TextMatrix(3,V.Local.iRow,V.uLocal.uMails(v.Local.iEmail)!Sender)
+'	Gui.F_Emails.flexgEmail.TextMatrix(4,V.Local.iRow,V.uLocal.uMails(v.Local.iEmail)!Rcpt)
+	Gui.F_Emails.lvwEmails.AddListItem(V.uLocal.uMails(v.Local.iEmail)!EmailID,V.uLocal.uMails(v.Local.iEmail)!EmailID)
+	Gui.F_Emails.lvwEmails.SetListItemSubItemText(V.uLocal.uMails(v.Local.iEmail)!EmailID,1,V.uLocal.uMails(v.Local.iEmail)!Date)
+	Gui.F_Emails.lvwEmails.SetListItemSubItemText(V.uLocal.uMails(v.Local.iEmail)!EmailID,2,V.uLocal.uMails(v.Local.iEmail)!Subject)
+	Gui.F_Emails.lvwEmails.SetListItemSubItemText(V.uLocal.uMails(v.Local.iEmail)!EmailID,3,V.uLocal.uMails(v.Local.iEmail)!Sender)
+	Gui.F_Emails.lvwEmails.SetListItemSubItemText(V.uLocal.uMails(v.Local.iEmail)!EmailID,4,V.uLocal.uMails(v.Local.iEmail)!Rcpt)
+
+F.Intrinsic.Control.Next(V.Local.iEmail)
+Gui.F_Emails..show
+
+
+Program.Sub.Main.End
+
+Program.Sub.f_emails_unload.Start
+F.Intrinsic.Control.End
+
+Program.Sub.f_emails_unload.End
+
+Program.Sub.lvwemails_click.Start
+V.Local.sBody.Declare(String)
+
+'F.Intrinsic.Debug.InvokeDebugger
+Gui.F_Emails.txtBody.Text("")
+Gui.F_Emails.txtRcpt.Text("")
+Gui.F_Emails.txtRcpt.Text(V.Screen.F_Emails!lvwEmails.SelectedItemSubItem(4))
+'
+'F.Intrinsic.UI.Inputbox("","",V.Screen.F_Emails!lvwEmails.SelectedItemKey,V.Local.sbody)
+
+f.Automation.MSOutlook.GetEmailBody(V.Global.sPath,V.Screen.F_Emails!lvwEmails.SelectedItemkey,V.Local.sBody)
+'
+Gui.F_Emails.txtBody.Text(V.Local.sBody)
+
+Program.Sub.lvwemails_click.End
+
+Program.Sub.cmdassociate_click.Start
+V.Local.iLinkID.Declare(Long)
+V.Local.sDesc.Declare(String)
+V.Local.sFile.Declare(String)
+V.Local.sType.Declare(String)
+V.Local.sSubj.Declare(String)
+V.Local.sDt.Declare(String)
+V.Local.iPos.Declare(Long)
+V.Local.sFileName.Declare(String)
+V.Local.iGrpID.Declare(Long)
+
+'F.Intrinsic.Debug.InvokeDebugger
+'F.Intrinsic.Debug.Stop
+
+F.Intrinsic.String.Concat("000",V.Passed.DATA-CRM-CompType,V.Local.sType)
+F.Global.DocumentControl.GetLinkID(V.Passed.DATA-CRM-CompID,V.local.sType,V.Local.iLinkID)
+F.Intrinsic.Control.If(V.Local.iLinkID,=,-1)
+	F.Global.DocumentControl.CreateReference(V.Passed.DATA-CRM-CompID,V.Local.sType,V.Local.iLinkID)
+F.Intrinsic.Control.endif
+F.Intrinsic.String.Format(V.Ambient.Now,"mmddyyhhnnss",V.Local.sDt)
+F.Intrinsic.String.Concat("MSO",V.Local.sDt,V.Local.sfilename)
+F.Intrinsic.String.Concat(V.Caller.PluginsDir,"\EML\",V.Caller.CompanyCode,"\",V.Local.sFileName,".msg",V.Local.sFile)
+F.Automation.MSOutlook.SaveEmail(V.Global.sPath,V.screen.f_emails!lvwemails.selecteditemkey,V.Local.sFile)
+F.Intrinsic.String.Left(V.Screen.F_Emails!lvwEmails.SelectedItemSubItem(2),20,V.Local.sSubj)
+F.Intrinsic.String.Instr(V.Screen.F_Emails!lvwEmails.SelectedItemSubItem(1)," ",V.Local.iPos)
+F.Intrinsic.Control.If(V.Local.iPos,>,0)
+	F.Intrinsic.String.Left(V.Screen.F_Emails!lvwEmails.SelectedItemSubItem(1),V.Local.iPos,V.local.sdt)
+F.Intrinsic.Control.Else
+	V.Local.sDt.Set(V.Screen.F_Emails!lvwEmails.SelectedItemSubItem(1))
+F.Intrinsic.Control.EndIf
+F.Intrinsic.String.Concat(V.Local.ssubj,":",V.Local.sdt,V.Local.sDesc)
+F.Intrinsic.Control.if(V.Local.sDesc.Length,>,30)
+	F.Intrinsic.String.Left(V.Local.sDesc,30,V.Local.sDesc)
+F.Intrinsic.Control.EndIf
+
+F.ODBC.Connection!con.OpenRecordsetRO("rst","Select Grp_ID from ATG_Doc_Grp where Grp_Name='Correspondence'")
+F.Intrinsic.Control.If(V.ODBC.con!rst.EOF,=,True)
+	F.ODBC.con!rst.Close
+	F.ODBC.Connection!con.OpenRecordsetRO("rst","Select Grp_ID from ATG_Doc_Grp where Grp_Name='CORRESPONDENCE'")
+F.Intrinsic.Control.EndIf
+V.Local.iGrpID.Set(V.ODBC.con!rst.FieldVal!Grp_ID)
+F.Intrinsic.Control.If(V.ODBC.con!rst.State,=,1)
+	F.ODBC.con!rst.Close
+F.Intrinsic.Control.endif
+
+F.Global.DocumentControl.AddDocument(V.Local.iLinkID,V.Local.sFile,V.Local.sDesc,V.Local.iGrpID,"msg")
+Gui.F_Emails.txtBody.Text("")
+Gui.F_Emails.txtRcpt.Text("")
+
+
+
+Program.Sub.cmdassociate_click.End
+
+Program.Sub.Comments.Start
+${$0$}$ATG_4107_Email_Listing$}$RLK$}$05/31/2016$}$False
+${$1$}$$}$$}$1$}$42918$}$CRM.NET-GAB1$}$05/31/2016 10:40:00 AM$}$(Program: Global_Shop_CRM.exe; Screen: )
+
+${$1$}$$}$$}$0$}$42900$}$CRM.NET-ENTRY$}$05/31/2016 10:39:44 AM$}$(Program: Global_Shop_CRM.exe; Screen: )
+
+Program.Sub.Comments.End
+
